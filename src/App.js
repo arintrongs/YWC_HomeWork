@@ -172,7 +172,7 @@ class Announce extends Component{
             <Col>
             <br/>
             <br/>
-              <div class="passed-context">เลือกสาขาที่ต้องการดูผลการคัดเลือกแบบ 40 ไข่สองฟอง</div>
+              <div class="passed-context">เลือกสาขาที่ต้องการดูผลการคัดเลือก <b><u>รายคน</u></b> แบบ 40 ไข่สองฟอง</div>
               <div class="major-select">
               <br/>
                 <Row>
@@ -206,7 +206,7 @@ class Announce extends Component{
               <br/><br/>
               <div class="passed-context">หรือ...</div>
               <br/><br/>
-              <div class="passed-context">ดูผลการคัดเลือกทั้งหมดแบบธรรมดา    <Button color="link" size="lg" onClick={this.selectedNormal}><h1>คลิก</h1></Button></div>
+              <div class="passed-context">ดูผลการคัดเลือกทั้งหมด    <Button color="link" size="lg" onClick={this.selectedNormal}><h1>คลิก</h1></Button></div>
               <br/><br/>
             </Col>
           </Row>
@@ -336,7 +336,7 @@ class Special extends Component{
         <div class="special-input">
           <FormGroup>
             <Label className="passed-context">ค่อย ๆ ใส่ค่อย ๆ ลุ้นนะจ้ะ (ใส่ ชื่อ เว้นวรรค 1 ครั้ง ตามด้วยนามสกุล)</Label>
-            <Input type="search" name="search" id="exampleSearch" placeholder="search placeholder" onChange={this.handleChange}/>
+            <Input type="search" name="search" id="exampleSearch" placeholder="Search" onChange={this.handleChange}/>
           </FormGroup>
         </div>
         
@@ -348,11 +348,17 @@ class Special extends Component{
 class Normal extends Component{
   constructor(props){
     super(props);
-    this.state={major:'content'}
+    this.state={major:'content',data:this.props.data}
     this.selectedDesignMajor = this.selectedDesignMajor.bind(this);
     this.selectedContentMajor = this.selectedContentMajor.bind(this);
     this.selectedMarketingMajor = this.selectedMarketingMajor.bind(this);
     this.selectedProgrammingMajor = this.selectedProgrammingMajor.bind(this);
+    this.sortByFirstName = this.sortByFirstName.bind(this);
+    this.sortByLastName = this.sortByLastName.bind(this);
+    this.sortByRef = this.sortByRef.bind(this);
+  }
+  componentWillReceiveProps(nextProps){
+    this.setState({data:nextProps.data});
   }
   selectedContentMajor(){
     this.setState({major:'content'});
@@ -366,18 +372,43 @@ class Normal extends Component{
   selectedProgrammingMajor(){
     this.setState({major:'programming'});
   }
+  sortByFirstName(){
+    var l = this.state.data;
+    l.content.sort((a, b) => a.firstName.localeCompare(b.firstName));
+    l.design.sort((a, b) => a.firstName.localeCompare(b.firstName));
+    l.marketing.sort((a, b) => a.firstName.localeCompare(b.firstName));
+    l.programming.sort((a, b) => a.firstName.localeCompare(b.firstName));
+    this.setState({data:l});
+  }
+   sortByRef(){
+    var l = this.state.data;
+    l.content.sort((a, b) => a.interviewRef.localeCompare(b.interviewRef));
+    l.design.sort((a, b) => a.interviewRef.localeCompare(b.interviewRef));
+    l.marketing.sort((a, b) => a.interviewRef.localeCompare(b.interviewRef));
+    l.programming.sort((a, b) => a.interviewRef.localeCompare(b.interviewRef));
+    this.setState({data:l});
+  }
+  sortByLastName(){
+    var l = this.state.data;
+    l.content.sort((a, b) => a.lastName.localeCompare(b.lastName));
+    l.design.sort((a, b) => a.lastName.localeCompare(b.lastName));
+    l.marketing.sort((a, b) => a.lastName.localeCompare(b.lastName));
+    l.programming.sort((a, b) => a.lastName.localeCompare(b.lastName));
+    this.setState({data:l});
+  }
   table(){
     var list = [];
     var returnVal = [];
     var tempVal = [];
+    var returnVal2 = [];
     if(this.state.major==='content')
-      list=this.props.data.content;
+      list=this.state.data.content;
     if(this.state.major==='design')
-      list=this.props.data.design;
+      list=this.state.data.design;
     if(this.state.major==='marketing')
-     list=this.props.data.marketing;
+     list=this.state.data.marketing;
     if(this.state.major==='programming')
-     list=this.props.data.programming;
+     list=this.state.data.programming;
     tempVal.push(
         <thead>
           <tr class="table-header">
@@ -387,23 +418,46 @@ class Normal extends Component{
           </tr>
         </thead>
       );
-    for(var i = 0 ;i<list.length;i++){
+    var t = Math.floor(list.length/2);
+    for(var i = 0 ;i<t;i++){
       returnVal.push(<tr>
         <td>{list[i].interviewRef}</td>
         <td>{list[i].firstName}</td>
         <td>{list[i].lastName}</td>
       </tr>)
     }
-
+    for(var i=t ;i<list.length;i++){
+      returnVal2.push(<tr>
+        <td>{list[i].interviewRef}</td>
+        <td>{list[i].firstName}</td>
+        <td>{list[i].lastName}</td>
+      </tr>)
+    }
     return(
-      <Table striped>
-        {tempVal}
-        <tbody class="table-infoo">
-          {returnVal}
-        </tbody>
-      </Table>
+      <Container>
+        <Row>
+          <Col>
+            <Table striped>
+              {tempVal}
+              <tbody class="table-infoo">
+                {returnVal}
+              </tbody>
+            </Table>
+          </Col>
+          <Col>
+            <Table striped>
+              {tempVal}
+              <tbody class="table-infoo">
+                {returnVal2}
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
+      </Container>
       )
   }
+
+
   render(){
     return(
       <Container className="normal-container">
@@ -412,6 +466,20 @@ class Normal extends Component{
             <span class="normal-header">เลือกสาขาที่ต้องการเลยจ้าา</span>
             <hr/>
           </Col>
+        </Row>
+        <Row>
+          <Col >
+            <div >
+              <Button color="primary" onClick={this.sortByRef}>sortByInterviewRef</Button>&nbsp;
+              <Button color="info" onClick={this.sortByFirstName}>sortByFirstName</Button>&nbsp;
+              <Button color="warning" onClick={this.sortByLastName}>sortByLastName</Button>
+            </div>
+
+          </Col>
+          
+        </Row>
+        <Row>
+          <Col><hr/></Col>
         </Row>
         <Row >
           <Col className="normal-major" onClick={this.selectedContentMajor}>
@@ -430,8 +498,12 @@ class Normal extends Component{
         <hr/>
         <Row>
           <Container className="normal-table">
-            <div class="normal-header">Web {this.state.major[0].toUpperCase()}{this.state.major.slice(1)}</div>
-            {this.table()}
+            <Row>
+              <Col>
+                <div class="normal-header">Web {this.state.major[0].toUpperCase()}{this.state.major.slice(1)}</div>
+                {this.table()}
+              </Col>
+            </Row>
           </Container>
         </Row>
       </Container>
@@ -441,7 +513,6 @@ class Normal extends Component{
 class App extends Component {
   render() {
     return (
-      // <Data/>
       <div>
       <Logo/>
       <Data/>
